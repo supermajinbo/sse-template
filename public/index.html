@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script>
+    function initEventSource() {
+      const app = document.getElementById('app');
+      let eventSource = new EventSource('/api/sse');
+      // 监听连接成功
+      eventSource.onopen = () => {
+        console.log('connected');
+      };
+      // 监听错误
+      eventSource.onerror = (event) => {
+        console.log(event);
+        // 错误后，浏览器会自动重连
+      };
+      // 监听消息
+      eventSource.onmessage = (event) => {
+        app.innerHTML += `<p>${event.data}</p>`;
+      };
+      // 监听清除事件
+      eventSource.addEventListener('clearEvent', () => {
+        app.innerHTML = '';
+      });
+      // 监听关闭事件
+      eventSource.addEventListener('closeEvent', () => {
+        if (eventSource.readyState === EventSource.OPEN) {
+          eventSource.close();
+          eventSource = null;
+        }
+      });
+    }
+    window.addEventListener('load', initEventSource);
+  </script>
+</body>
+
+</html>
